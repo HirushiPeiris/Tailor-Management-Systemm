@@ -1,190 +1,113 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { FaArrowLeft, FaEye, FaEyeSlash, FaGoogle } from 'react-icons/fa';
-import backgroundImage from '../assets/tailor-bg.jpg';
-import googleLogo from '../assets/google logo.jpg'; 
+import React, { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { FaEye, FaEyeSlash, FaArrowLeft } from "react-icons/fa";
+import backgroundImage from "../assets/loginbgg4.jpeg";
+
+import { LoginTailorAction } from "../actions/authActions";
 
 function Login() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [Email, setEmail] = useState("");
+  const [PasswordHash, setPasswordHash] = useState("");
   const [passwordVisible, setPasswordVisible] = useState(false);
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
+
+  const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const validateEmail = (email) => {
-    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return re.test(email);
-  };
+  const { user, loading, error } = useSelector((state) => state.auth);
+
+  useEffect(() => {
+    if (user && user.token) {
+      navigate("/dashboard");
+    }
+  }, [user, navigate]);
 
   const handleLogin = (e) => {
     e.preventDefault();
-    setError('');
-    setLoading(true);
-
-    if (!validateEmail(email)) {
-      setError('Please enter a valid email address');
-      setLoading(false);
-      return;
-    }
-
-    if (password.length < 6) {
-      setError('Password must be at least 6 characters');
-      setLoading(false);
-      return;
-    }
-
-    // Simulate API call
-    setTimeout(() => {
-      setLoading(false);
-      navigate('/dashboard');
-    }, 1500);
+    dispatch(LoginTailorAction(Email, PasswordHash));
   };
 
-  const handleGoogleLogin = () => {
-    setLoading(true);
-    // Simulate Google auth
-    setTimeout(() => {
-      setLoading(false);
-      navigate('/dashboard');
-    }, 1500);
+  const handleBack = () => {
+    // Navigate to a specific route instead of using history
+    navigate("/"); // or navigate("/home") depending on your routes
   };
 
   return (
     <div
-      className="min-h-screen flex items-center justify-center p-4"
-      style={{
-        backgroundImage: `url(${backgroundImage})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat',
-      }}
+      className="min-h-screen w-full flex items-center justify-end bg-cover bg-center"
+      style={{ backgroundImage: `url(${backgroundImage})` }}
     >
-      <div className="bg-black bg-opacity-50 absolute inset-0"></div>
+      {/* Bigger Glass Login Form */}
+      <div className="w-full max-w-[600px] p-12 mr-20">
 
-      <form
-        onSubmit={handleLogin}
-        className="bg-white p-8 rounded-lg shadow-xl w-full max-w-md relative z-10"
-      >
         <button
-          type="button"
-          onClick={() => navigate(-1)}
-          className="absolute top-4 left-4 text-gray-600 hover:text-yellow-600 transition-colors duration-200"
-          aria-label="Go back"
+          onClick={handleBack}
+          className="text-gray-200 hover:text-blue-400 flex items-center mb-6 transition-colors duration-200"
         >
-          <FaArrowLeft className="text-xl" />
+          <FaArrowLeft className="mr-2" /> Back
         </button>
 
-        <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold text-gray-800">Welcome Back</h2>
-          <p className="text-gray-600 mt-2">Sign in to your admin account</p>
-        </div>
+        <div className="bg-white bg-opacity-20 backdrop-blur-lg border border-white border-opacity-30 rounded-3xl shadow-2xl p-12">
+          <h2 className="text-5xl font-bold text-center text-white mb-6 drop-shadow-lg">
+            Welcome Back
+          </h2>
 
-        {/* Email Input */}
-        <div className="mb-4">
-          <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-            Email Address
-          </label>
-          <input
-            id="email"
-            type="email"
-            placeholder="your@email.com"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent"
-          />
-        </div>
+          {error && (
+            <div className="mb-4 text-red-400 text-sm text-center">{error}</div>
+          )}
 
-        {/* Password Input */}
-        <div className="mb-6">
-          <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-            Password
-          </label>
-          <div className="relative">
-            <input
-              id="password"
-              type={passwordVisible ? 'text' : 'password'}
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              className="w-full p-3 border border-gray-300 rounded-lg pr-10 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent"
-            />
+          <form onSubmit={handleLogin} className="space-y-8">
+            <div>
+              <label className="block text-lg font-medium text-white mb-3 drop-shadow-sm">
+                Email Address
+              </label>
+              <input
+                type="email"
+                value={Email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="your@email.com"
+                className="w-full px-6 py-5 border border-white border-opacity-40 rounded-xl bg-white bg-opacity-10 text-white placeholder-white text-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-lg font-medium text-white mb-3 drop-shadow-sm">
+                Password
+              </label>
+              <div className="relative">
+                <input
+                  type={passwordVisible ? "text" : "password"}
+                  value={PasswordHash}
+                  onChange={(e) => setPasswordHash(e.target.value)}
+                  placeholder="••••••••"
+                  className="w-full px-6 py-5 border border-white border-opacity-40 rounded-xl bg-white bg-opacity-10 text-white placeholder-white text-lg focus:outline-none focus:ring-2 focus:ring-blue-400 pr-16"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setPasswordVisible(!passwordVisible)}
+                  className="absolute right-5 top-1/2 transform -translate-y-1/2 text-white text-xl hover:text-blue-300 transition-colors duration-200"
+                >
+                  {passwordVisible ? <FaEyeSlash /> : <FaEye />}
+                </button>
+              </div>
+            </div>
+
             <button
-              type="button"
-              onClick={() => setPasswordVisible(!passwordVisible)}
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
-              aria-label={passwordVisible ? 'Hide password' : 'Show password'}
+              type="submit"
+              disabled={loading}
+              className={`w-full py-5 rounded-xl font-bold text-white text-2xl transition ${
+                loading
+                  ? "bg-blue-400 cursor-not-allowed"
+                  : "bg-blue-600 hover:bg-blue-500 shadow-xl"
+              }`}
             >
-              {passwordVisible ? <FaEyeSlash /> : <FaEye />}
+              {loading ? "Signing in..." : "Sign In"}
             </button>
-          </div>
+          </form>
         </div>
-
-        {/* Forgot Password */}
-        <div className="text-right mb-6">
-          <button
-            type="button"
-            onClick={() => navigate('/forgot-password')}
-            className="text-sm text-blue-600 hover:underline focus:outline-none"
-          >
-            Forgot password?
-          </button>
-        </div>
-
-        {error && (
-          <div className="mb-4 p-3 bg-red-50 text-red-600 rounded-lg text-sm">
-            {error}
-          </div>
-        )}
-
-        {/* Login Button */}
-        <button
-          type="submit"
-          disabled={loading}
-          className={`w-full py-3 px-4 rounded-lg font-semibold text-white transition duration-200 ${
-            loading ? 'bg-yellow-500 cursor-not-allowed' : 'bg-yellow-600 hover:bg-yellow-700'
-          }`}
-        >
-          {loading ? 'Signing in...' : 'Sign In'}
-        </button>
-
-        {/* Divider */}
-        <div className="flex items-center my-6">
-          <div className="flex-1 border-t border-gray-300"></div>
-          <span className="px-3 text-gray-500 text-sm">OR</span>
-          <div className="flex-1 border-t border-gray-300"></div>
-        </div>
-import googleLogo from '../assets/google-logo.png'; // adjust path as needed
-
-// ... in your button:
-<button
-  type="button"
-  onClick={handleGoogleLogin}
-  disabled={loading}
-  className="w-full flex items-center justify-center py-3 px-4 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50 transition duration-200"
->
-  <img 
-    src={googleLogo}
-    alt="Google logo"
-    className="w-5 h-5 mr-3"
-  />
-  Sign in with Google
-</button>
-
-        {/* Sign Up Link */}
-        <div className="mt-6 text-center text-sm">
-          <span className="text-gray-600">Don't have an account? </span>
-          <button
-            type="button"
-            onClick={() => navigate('/register')}
-            className="text-blue-600 hover:underline focus:outline-none font-medium"
-          >
-            Sign up
-          </button>
-        </div>
-      </form>
+      </div>
     </div>
   );
 }

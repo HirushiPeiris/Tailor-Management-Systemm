@@ -1,11 +1,16 @@
-const login = async (email, password) => {
-  const storedEmail = localStorage.getItem('adminEmail');
-  const storedPassword = localStorage.getItem('adminPassword');
-  return email === storedEmail && password === storedPassword;
+
+import axios from "axios";
+
+const LoginTailor = async (credentials) => {
+  const config = {
+    method: "post",
+    url: '/Tailor/LoginTailor', 
+    data: credentials,
+  };
+  return axios.request(config);
 };
 
-const authService = {
-  login,
+export const authService = {
+  LoginTailor,
 };
 
-export default authService;
